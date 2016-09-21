@@ -11,16 +11,16 @@ You need edit (add) this env:
 
 *Networking*
 
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES**=OPENWIRE,AMQP,MQTT,STOMP,STOMPSSL,WS,SSL
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_WS_PORT**=666 (default value 61614)
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_OPENWIRE_PORT**=111 (default value 61616)
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_KEYSTOREPASSWORD**=keystorepassword
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_TRUSTSTOREPASSWORD**=truststorepassword
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_PORT**=777 (default value 61617)
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_MQTT_PORT**=555 (default value 1883)
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_AMQP_PORT**=222 (default value 5672)
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_STOMP_PORT**=444 (default value 61613)
-- **ACTIVE_MQ_TRANSPORT_CONNECTOR_STOPMSSL_PORT**=333 (default value 61612)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES**: available values **OPENWIRE,AMQP,MQTT,STOMP,STOMPSSL,WS,SSL**
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_WS_PORT**: port for WS connector (default value 61614)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_OPENWIRE_PORT**: port for OPENWIRE connector (default value 61616)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_KEYSTOREPASSWORD**: password for keystore file
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_TRUSTSTOREPASSWORD**: pasword for truststore file
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_PORT**: port for SSL connector (default value 61617)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_MQTT_PORT**: port for MQTT connector (default value 1883)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_AMQP_PORT**: port for AMQP connector (default value 5672)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_STOMP_PORT**: port for STOMP connector (default value 61613)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_STOPMSSL_PORT** port for STOMPSSL connector (default value 61612)
 - **NETWORK_OF_BROKERS_CONNECTORS_URI**: possibility to configure network of brokers. As this env variable is part of `sed` command it needs to escape all special characters like in `sed` f.e.:
 
 ```export NETWORK_OF_BROKERS_CONNECTORS_URI=static:(tcp:\/\/10.122.17.157:61616)```
