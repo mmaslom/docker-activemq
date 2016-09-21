@@ -11,12 +11,16 @@ You need edit (add) this env:
 
 *Networking*
 
-- **PORT_OPENWIRE**: port for openwire connection (default value is `61616`)
-- **PORT_AMQP**: port for AMQP connection (default value is `5672`)
-- **PORT_STOMPSSL**: port for stomp/SSL connection (default value is `61612`)
-- **PORT_STOMP**: port for stomp connection (default value is `61613`)
-- **PORT_MQTT**: port for MQTT connection (default value is `1883`)
-- **PORT_WS**: port for WebSocket connection (default value is `61614`)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES**: available values **OPENWIRE,AMQP,MQTT,STOMP,STOMPSSL,WS,SSL**
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_WS_PORT**: port for WS connector (default value 61614)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_OPENWIRE_PORT**: port for OPENWIRE connector (default value 61616)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_KEYSTOREPASSWORD**: password for keystore file
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_TRUSTSTOREPASSWORD**: pasword for truststore file
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_PORT**: port for SSL connector (default value 61617)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_MQTT_PORT**: port for MQTT connector (default value 1883)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_AMQP_PORT**: port for AMQP connector (default value 5672)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_STOMP_PORT**: port for STOMP connector (default value 61613)
+- **ACTIVE_MQ_TRANSPORT_CONNECTOR_STOPMSSL_PORT** port for STOMPSSL connector (default value 61612)
 - **NETWORK_OF_BROKERS_CONNECTORS_URI**: possibility to configure network of brokers. As this env variable is part of `sed` command it needs to escape all special characters like in `sed` f.e.:
 
 ```export NETWORK_OF_BROKERS_CONNECTORS_URI=static:(tcp:\/\/10.122.17.157:61616)```

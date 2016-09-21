@@ -2,15 +2,16 @@
 set -e
 set -x
 
+#check if connector types are set
+if [ -z ${ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES} ]; 
+   then echo "Configuration error: 'ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES' env variable is not set";
+   exit 0  
+fi
+
 STORE_USAGE=${STORE_USAGE:=10}
 TEMP_USAGE=${TEMP_USAGE:=5}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:=admin123}
-PORT_OPENWIRE=${PORT_OPENWIRE:=61616}
-PORT_AMQP=${PORT_AMQP:=5672}
-PORT_STOMPSSL=${PORT_STOMPSSL:=61612}
-PORT_STOMP=${PORT_STOMP:=61613}
-PORT_MQTT=${PORT_MQTT:=1883}
-PORT_WS=${PORT_WS:=61614}
+
 ROOT_LOGGER_LEVEL=${ROOT_LOGGER_LEVEL:="INFO, console, logfile"}
 ACTIVEMQ_SPRING_LOGGER_LEVEL=${ACTIVEMQ_SPRING_LOGGER_LEVEL:="WARN"}
 ACTIVEMQ_WEB_HANDLER_LOGGER_LEVEL=${ACTIVEMQ_WEB_HANDLER_LOGGER_LEVEL:="WARN"}
@@ -20,12 +21,77 @@ CONSOLE_APPENDER_THRESHOLD_LEVEL=${CONSOLE_APPENDER_THRESHOLD_LEVEL:="INFO"}
 
 sed -i -e "s/<storeUsage limit=\"100 gb\"\/>/<storeUsage limit=\"${STORE_USAGE} gb\"\/>/" /opt/app/apache-activemq/conf/activemq.xml
 sed -i -e "s/<tempUsage limit=\"50 gb\"\/>/<tempUsage limit=\"5 gb\"\/>/" /opt/app/apache-activemq/conf/activemq.xml
-sed -i -e "s/<transportConnector name=\"openwire\" uri=\"tcp:\/\/0.0.0.0:61616?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"openwire\" uri=\"tcp:\/\/0.0.0.0:${PORT_OPENWIRE}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
-sed -i -e "s/<transportConnector name=\"amqp\" uri=\"amqp:\/\/0.0.0.0:5672?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"amqp\" uri=\"amqp:\/\/0.0.0.0:${PORT_AMQP}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
-sed -i -e "s/<transportConnector name=\"stompssl\" uri=\"stomp+nio+ssl:\/\/0.0.0.0:61612?transport.enabledCipherSuites=SSL_RSA_WITH_RC4_128_SHA,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA\" \/>/<transportConnector name=\"stompssl\" uri=\"stomp+nio+ssl:\/\/0.0.0.0:${PORT_STOMPSSL}\?transport.enabledCipherSuites=SSL_RSA_WITH_RC4_128_SHA,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA\" \/>/g" /opt/app/apache-activemq/conf/activemq.xml
-sed -i -e "s/<transportConnector name=\"stomp\" uri=\"stomp:\/\/0.0.0.0:61613?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"stomp\" uri=\"stomp:\/\/0.0.0.0:${PORT_STOMP}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
-sed -i -e "s/<transportConnector name=\"mqtt\" uri=\"mqtt:\/\/0.0.0.0:1883?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"mqtt\" uri=\"mqtt:\/\/0.0.0.0:${PORT_MQTT}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
-sed -i -e "s/<transportConnector name=\"ws\" uri=\"ws:\/\/0.0.0.0:61614?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"ws\" uri=\"ws:\/\/0.0.0.0:${PORT_WS}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
+
+#Checking transport connectors
+IFS=', ' read -r -a ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES_ARRAY <<< "${ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES}"
+
+for CONNECTOR in "${ACTIVE_MQ_TRANSPORT_CONNECTOR_NAMES_ARRAY[@]}"
+do
+	#CHECK OPENWIRE
+	if [ "$CONNECTOR" == 'OPENWIRE' ] ; then
+	    PORT_OPENWIRE=${ACTIVE_MQ_TRANSPORT_CONNECTOR_OPENWIRE_PORT:=61616}
+	    sed -i -e "s/<transportConnector name=\"openwire\" uri=\"tcp:\/\/0.0.0.0:61616?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"openwire\" uri=\"tcp:\/\/0.0.0.0:${PORT_OPENWIRE}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
+	    echo "OPENWIRE CONNECTOR SET"
+	else
+	    sed -i -e "s/<transportConnector name=\"openwire\" uri=\"tcp:\/\/0.0.0.0:61616?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>//g" /opt/app/apache-activemq/conf/activemq.xml
+	fi
+
+
+	#CHECK AMQP
+	if [ "$CONNECTOR" == 'AMQP' ] ; then
+	    PORT_AMQP=${ACTIVE_MQ_TRANSPORT_CONNECTOR_AMQP_PORT:=5672}
+	    sed -i -e "s/<transportConnector name=\"amqp\" uri=\"amqp:\/\/0.0.0.0:5672?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"amqp\" uri=\"amqp:\/\/0.0.0.0:${PORT_AMQP}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
+	    echo "AMQP CONNECTOR SET"
+	else
+	    sed -i -e "s/<transportConnector name=\"amqp\" uri=\"amqp:\/\/0.0.0.0:5672?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>//g" /opt/app/apache-activemq/conf/activemq.xml
+	fi
+
+	#CHECK STOPMSSL
+	if [ "$CONNECTOR" == 'STOMPSSL' ] ; then
+	    PORT_STOMPSSL=${ACTIVE_MQ_TRANSPORT_CONNECTOR_STOMPSSL_PORT:=61612}
+	    sed -i -e "s/<transportConnector name=\"stompssl\" uri=\"stomp+nio+ssl:\/\/0.0.0.0:61612?transport.enabledCipherSuites=SSL_RSA_WITH_RC4_128_SHA,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA\" \/>/<transportConnector name=\"stompssl\" uri=\"stomp+nio+ssl:\/\/0.0.0.0:${PORT_STOMPSSL}\?transport.enabledCipherSuites=SSL_RSA_WITH_RC4_128_SHA,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA\" \/>/g" /opt/app/apache-activemq/conf/activemq.xml 
+	    echo "STOMPSSL CONNECTOR SET"
+	else
+	    sed -i -e "s/<transportConnector name=\"stompssl\" uri=\"stomp+nio+ssl:\/\/0.0.0.0:61612?transport.enabledCipherSuites=SSL_RSA_WITH_RC4_128_SHA,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA\" \/>//g" /opt/app/apache-activemq/conf/activemq.xml
+	fi
+
+	#CHECK STOMP
+	if [ "$CONNECTOR" == 'STOMP' ] ; then
+	    PORT_STOMP=${ACTIVE_MQ_TRANSPORT_CONNECTOR_STOMP_PORT:=61613}
+	    sed -i -e "s/<transportConnector name=\"stomp\" uri=\"stomp:\/\/0.0.0.0:61613?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"stomp\" uri=\"stomp:\/\/0.0.0.0:${PORT_STOMP}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
+	    echo "STOMP CONNECTOR SET"
+	else
+	    sed -i -e "s/<transportConnector name=\"stomp\" uri=\"stomp:\/\/0.0.0.0:61613?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>//g" /opt/app/apache-activemq/conf/activemq.xml
+	fi
+
+	#CHECK MQTT
+	if [ "$CONNECTOR" == 'MQTT' ] ; then
+	    PORT_MQTT=${ACTIVE_MQ_TRANSPORT_CONNECTOR_MQTT_PORT:=1883}
+	    sed -i -e "s/<transportConnector name=\"mqtt\" uri=\"mqtt:\/\/0.0.0.0:1883?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"mqtt\" uri=\"mqtt:\/\/0.0.0.0:${PORT_MQTT}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
+	    echo "MQTT CONNECTOR SET"
+	else
+	    sed -i -e "s/<transportConnector name=\"mqtt\" uri=\"mqtt:\/\/0.0.0.0:1883?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>//g" /opt/app/apache-activemq/conf/activemq.xml
+	fi
+
+	#CHECK WS
+	if [ "$CONNECTOR" == 'WS' ] ; then
+	    PORT_WS=${ACTIVE_MQ_TRANSPORT_CONNECTOR_WS_PORT:=61614}
+	    sed -i -e "s/<transportConnector name=\"ws\" uri=\"ws:\/\/0.0.0.0:61614?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/<transportConnector name=\"ws\" uri=\"ws:\/\/0.0.0.0:${PORT_WS}\?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>/g" /opt/app/apache-activemq/conf/activemq.xml
+	    echo "WS CONNECTOR SET"
+	else
+	    sed -i -e "s/<transportConnector name=\"ws\" uri=\"ws:\/\/0.0.0.0:61614?maximumConnections=1000\&amp;wireFormat.maxFrameSize=104857600\"\/>//g" /opt/app/apache-activemq/conf/activemq.xml
+	fi
+
+	#CHECK SSL
+	if [ "$CONNECTOR" == 'SSL' ] ; then
+	    PORT_SSL=${ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_PORT:=61617}
+	    KEYSTOR_PASSWORD=${ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_KEYSTOREPASSWORD:=''}
+	    TRUSTSTORE_PASSWORD=${ACTIVE_MQ_TRANSPORT_CONNECTOR_SSL_TRUSTSTOREPASSWORD:=''}
+	    sed -i -e "s/<transportConnectors>/<transportConnectors>\n<transportConnector name=\"ssl\" uri=\"ssl:\/\/0.0.0.0:${PORT_SSL}?needClientAuth=true\"\/>\n/g" /opt/app/apache-activemq/conf/activemq.xml
+	    sed -i -e "s/<transportConnectors>/<sslContext>\n<sslContext keyStore=\"file:\/opt\/app\/broker.ks\" keyStorePassword=\"${KEYSTOR_PASSWORD}\" trustStore=\"file:\/opt\/app\/broker.ts\" trustStorePassword=\"${TRUSTSTORE_PASSWORD}\"\/>\n<\/sslContext>\n\n<transportConnectors>/g" /opt/app/apache-activemq/conf/activemq.xml
+	    echo "SSL CONNECTOR SET"
+	fi
+done
 
 # Setting up rootLogger level
 sed -i -e "s/log4j.rootLogger=INFO, console, logfile/log4j.rootLogger=${ROOT_LOGGER_LEVEL}/g" /opt/app/apache-activemq/conf/log4j.properties
