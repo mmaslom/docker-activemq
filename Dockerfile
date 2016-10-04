@@ -3,7 +3,7 @@ FROM oberthur/docker-ubuntu-java:jdk8_8.102.14
 MAINTAINER Dawid Malinowski <d.malinowski@oberthur.com>
 
 ENV HOME=/opt/app
-ENV ACTIVEMQ_VERSION 5.14.0
+ENV ACTIVEMQ_VERSION 5.14.1
 WORKDIR /opt/app
 
 ADD start-activemq.sh /bin/start-activemq.sh
