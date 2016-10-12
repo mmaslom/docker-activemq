@@ -29,6 +29,9 @@ RUN chmod +x /bin/start-*.sh \
   && xmlstarlet ed -L --subnode "/_:beans/_:bean[@id='invokeConnectors']/_:property[@name='arguments']/_:list/_:bean[@id='SecureConnector' and @class='org.eclipse.jetty.server.ServerConnector']/_:constructor-arg/_:bean[@id='handlers']" --type elem -n 'property name="keyStorePassword" value="password"' -v "" /opt/app/apache-activemq/conf/jetty.xml \
   && xmlstarlet ed -L --subnode "/_:beans/_:bean[@id='invokeConnectors']/_:property[@name='arguments']/_:list/_:bean[@id='SecureConnector' and @class='org.eclipse.jetty.server.ServerConnector']" --type elem -n 'property name="port" value="8162"' -v "" /opt/app/apache-activemq/conf/jetty.xml \
 
+  # this should be uncommented in order to apply security updates
+#  && apt-get -y upgrade && apt-get -y dist-upgrade
+
   # clean all cache to clean space
   && apt-get purge -y unzip \
   && rm -rf /var/lib/apt/lists/* \
